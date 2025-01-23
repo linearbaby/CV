@@ -42,33 +42,42 @@
 
     /**
      * Detect if the browser supports inline PDF rendering.
-     * This function tries to embed a small PDF and checks if the object is usable.
+     * This function attempts to render a small Base64-encoded PDF in an iframe.
+     * For Android-specific issues, it explicitly checks for download behavior.
      */
-
-     function canRenderPDFNatively() {
-        return new Promise((resolve) => {
-          const testIframe = document.createElement("iframe");
-      
-          // Use a small inline Base64-encoded PDF as a test
-          const base64Pdf =
+    function canRenderPDFNatively() {
+      return new Promise((resolve) => {
+        // Create a hidden iframe for testing
+        const testIframe = document.createElement("iframe");
+        const base64Pdf =
             'data:application/pdf;base64,JVBERi0xLjQKJcTl8uXrp/Og0MTGCjEgMCBvYmoKPDwvTGVuZ3RoIDMgMCBSL0ZpbHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQp4nE1PTQkAQAy80zW8IH5a7iF7J6o0vW3IoVRK0NIEQv1vo3FxQLAEE7TkkwKnBUVQS/Uox4YEoCLF2c8XgNq7twAKZW5kc3RyZWFtCmVuZG9iagozIDAgb2JqCjIwMAplbmRvYmoKNCAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDUgMCBSL1Jlc291cmNlcyA2IDAgUi9NZWRpYUJveFswIDAgNTk1LjI3OSA4NDIuMDFdL0dyb3VwPDwvUy9UcmFuc3BhcmVuY3kvQ1MvRGV2aWNlUkdCPj4vQ29udGVudHMgMiAwIFI+PgplbmRvYmoKNiAwIG9iago8PC9Qcm9jU2V0Wy9QREZdL1Jlc291cmNlczw8L0ZvbnQ8PC9GMSA3IDAgUj4+L1hleHRHUjwvU3RkRGV2aWNlUkdCPj4+Pj4KZW5kb2JqCjcIDAgb2JqCjw8L1R5cGUvRm9udC9TdWJ0eXBlL1R5cGUxL05hbWUvRjEvQmFzZUZvbnQvSGVsdmV0aWNhL0VuY29kaW5nL1dpbkFuc2lFbmNvZGluZz4+CmVuZG9iago1IDAgb2JqCjw8L1R5cGUvUGFnZXMvQ291bnQgMS9LaWRzWzQgMCBSXT4+CmVuZG9iagp4cmVmCjAgOQowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTUgMDAwMDAgbiAKMDAwMDAwMDEyMyAwMDAwMCBuIAowMDAwMDAwMDI1IDAwMDAwIG4gCjAwMDAwMDAxNDIgMDAwMDAgbiAKMDAwMDAwMDE2NiAwMDAwMCBuIAowMDAwMDAwMjA4IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA5L1Jvb3QgNSAwIFIvSW5mbyAxIDAgUi9JRFs8NDE3NkM5ODgyM0U3RTQ4NzUzMzIxRTlBRTU4NDlDNzM+PDQxNzZDOTg4MjNFN0U0ODc1MzMyMUU5QUU1ODQ5QzczPl0vRG9jQ2hlY2tzdW0gL0hTSEExOTg2ZDNiYTc0NmJhOWI5YmQ5YzRlZjRkZjBiYTkwY2Y+PgplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAxMAowMDAwMDAwMDAwIDY1NTM1IGYgIAp0cmFpbGVyCjwvU2l6ZSAxMC9Sb290IDUgMCBSL0luZm8gMSAwIFIvSUQwIFsxLjYuMjAuMC4xMF0vRG9jQ2hlY2tzdW0gL0hTSEExOTg2ZDNiYTc0NmJhOWI5YmQ5YzRlZjRkZjBiYTkwY2Y+PgplbmRzdHJlYW0KZW5kb2JqCnRyYWlsZXIKLz4KZW5kc3RyZWFtCmVuZG9iago=';
-        
-          testIframe.src = base64Pdf;
-          testIframe.style.display = "none";
-      
-          testIframe.onload = () => {
+    
+        testIframe.src = base64Pdf;
+        testIframe.style.display = "none";
+    
+        // Handle iframe load and error events
+        testIframe.onload = () => {
+          document.body.removeChild(testIframe);
+          resolve(true); // PDF successfully rendered
+        };
+    
+        testIframe.onerror = () => {
+          document.body.removeChild(testIframe);
+          resolve(false); // PDF failed to render
+        };
+    
+        document.body.appendChild(testIframe);
+    
+        // Extra Android-specific check
+        setTimeout(() => {
+          const isAndroid = /Android/i.test(navigator.userAgent);
+          if (isAndroid) {
             document.body.removeChild(testIframe);
-            resolve(true); // PDF successfully rendered
-          };
-      
-          testIframe.onerror = () => {
-            document.body.removeChild(testIframe);
-            resolve(false); // PDF failed to render
-          };
-      
-          document.body.appendChild(testIframe);
-        });
-      }
+            resolve(false); // Assume no rendering on Android
+          }
+        }, 1000); // Wait a bit for Android's download behavior to occur
+      });
+    }
         
     // Function to render PDF with pdf.js
     async function renderPDFWithPdfJs() {
