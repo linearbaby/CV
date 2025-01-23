@@ -56,17 +56,13 @@
         testIframe.src = base64Pdf;
         testIframe.style.display = "none";
 
-        // Extra Android-specific check
-        setTimeout(() => {
+        // Handle iframe load and error events
+        testIframe.onload = () => {
           const isAndroid = /Android/i.test(navigator.userAgent);
           if (isAndroid) {
             document.body.removeChild(testIframe);
             resolve(false); // Assume no rendering on Android
           }
-        }, 1000); // Wait a bit for Android's download behavior to occur
-    
-        // Handle iframe load and error events
-        testIframe.onload = () => {
           document.body.removeChild(testIframe);
           resolve(true); // PDF successfully rendered
         };
