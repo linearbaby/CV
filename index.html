@@ -1,16 +1,96 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html lang="en" style="width:100%; height:100%;">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <title>Artyom's CV</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Viewer</title>
+  <style>
+    iframe {
+      width: 100%;
+      height: 100vh;
+      border: none;
+    }
+    canvas {
+      border: 1px solid black;
+      display: block;
+      margin: 0 auto;
+      width: 100%;
+      height: auto;
+    }
+    #fallback-container {
+      display: none;
+    }
+  </style>
 </head>
-  <body style="width:100%; height:100%; margin:0;">
-   <iframe
-    src="https://drive.google.com/viewerng/viewer?embedded=true&url=https://github.com/linearbaby/CV/raw/main/CV.pdf"
-    frameBorder="0"
-    scrolling="auto"
-    height="100%"
-    width="100%"
-  ></iframe>
-  </body>
+<body>
+  <!-- Native PDF Viewer -->
+  <iframe id="pdf-viewer"></iframe>
+
+  <!-- Fallback for Browsers without Native PDF Support -->
+  <div id="fallback-container">
+    <canvas id="pdf-render"></canvas>
+  </div>
+
+  <script type="module">
+    import * as pdfjsLib from './pdf.mjs';
+
+    const pdfUrl = 'https://linearbaby.github.io/CV/CV.pdf'; // Direct URL to the PDF
+    const iframe = document.getElementById('pdf-viewer');
+    const fallbackContainer = document.getElementById('fallback-container');
+    const canvas = document.getElementById('pdf-render');
+    const context = canvas.getContext('2d');
+
+    /**
+     * Detect if the browser supports inline PDF rendering.
+     * This function tries to embed a small PDF and checks if the object is usable.
+     */
+
+     function canRenderPDFNatively() {
+      return new Promise((resolve) => {
+        const testIframe = document.createElement('iframe');
+        testIframe.style.display = 'none';
+
+        // A small, inline Base64-encoded 1-page PDF file
+        const base64Pdf =
+          'data:application/pdf;base64,JVBERi0xLjQKJcTl8uXrp/Og0MTGCjEgMCBvYmoKPDwvTGVuZ3RoIDMgMCBSL0ZpbHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQp4nE1PTQkAQAy80zW8IH5a7iF7J6o0vW3IoVRK0NIEQv1vo3FxQLAEE7TkkwKnBUVQS/Uox4YEoCLF2c8XgNq7twAKZW5kc3RyZWFtCmVuZG9iagozIDAgb2JqCjIwMAplbmRvYmoKNCAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDUgMCBSL1Jlc291cmNlcyA2IDAgUi9NZWRpYUJveFswIDAgNTk1LjI3OSA4NDIuMDFdL0dyb3VwPDwvUy9UcmFuc3BhcmVuY3kvQ1MvRGV2aWNlUkdCPj4vQ29udGVudHMgMiAwIFI+PgplbmRvYmoKNiAwIG9iago8PC9Qcm9jU2V0Wy9QREZdL1Jlc291cmNlczw8L0ZvbnQ8PC9GMSA3IDAgUj4+L1hleHRHUjwvU3RkRGV2aWNlUkdCPj4+Pj4KZW5kb2JqCjcIDAgb2JqCjw8L1R5cGUvRm9udC9TdWJ0eXBlL1R5cGUxL05hbWUvRjEvQmFzZUZvbnQvSGVsdmV0aWNhL0VuY29kaW5nL1dpbkFuc2lFbmNvZGluZz4+CmVuZG9iago1IDAgb2JqCjw8L1R5cGUvUGFnZXMvQ291bnQgMS9LaWRzWzQgMCBSXT4+CmVuZG9iagp4cmVmCjAgOQowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTUgMDAwMDAgbiAKMDAwMDAwMDEyMyAwMDAwMCBuIAowMDAwMDAwMDI1IDAwMDAwIG4gCjAwMDAwMDAxNDIgMDAwMDAgbiAKMDAwMDAwMDE2NiAwMDAwMCBuIAowMDAwMDAwMjA4IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA5L1Jvb3QgNSAwIFIvSW5mbyAxIDAgUi9JRFs8NDE3NkM5ODgyM0U3RTQ4NzUzMzIxRTlBRTU4NDlDNzM+PDQxNzZDOTg4MjNFN0U0ODc1MzMyMUU5QUU1ODQ5QzczPl0vRG9jQ2hlY2tzdW0gL0hTSEExOTg2ZDNiYTc0NmJhOWI5YmQ5YzRlZjRkZjBiYTkwY2Y+PgplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAxMAowMDAwMDAwMDAwIDY1NTM1IGYgIAp0cmFpbGVyCjwvU2l6ZSAxMC9Sb290IDUgMCBSL0luZm8gMSAwIFIvSUQwIFsxLjYuMjAuMC4xMF0vRG9jQ2hlY2tzdW0gL0hTSEExOTg2ZDNiYTc0NmJhOWI5YmQ5YzRlZjRkZjBiYTkwY2Y+PgplbmRzdHJlYW0KZW5kb2JqCnRyYWlsZXIKLz4KZW5kc3RyZWFtCmVuZG9iago=';
+        
+      })}
+
+    // Function to render PDF with pdf.js
+    async function renderPDFWithPdfJs() {
+      fallbackContainer.style.display = 'block'; // Show the fallback container
+      pdfjsLib.GlobalWorkerOptions.workerSrc = './pdf.worker.mjs';
+
+      // Load the PDF using pdf.js
+      const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+      const page = await pdf.getPage(1);
+
+      const scale = 1.5; // Adjust scale for better resolution
+      const viewport = page.getViewport({ scale });
+      const devicePixelRatio = window.devicePixelRatio || 1;
+
+      // Set canvas dimensions for high resolution
+      canvas.width = viewport.width * devicePixelRatio;
+      canvas.height = viewport.height * devicePixelRatio;
+
+      // Scale context to match device pixel ratio
+      context.scale(devicePixelRatio, devicePixelRatio);
+
+      // Render the page
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport,
+      };
+      await page.render(renderContext).promise;
+    }
+
+    // Conditional Rendering
+    if (canRenderPDFNatively()) {
+      iframe.src = pdfUrl; // Use iframe for native rendering
+    } else {
+      iframe.style.display = 'none'; // Hide iframe if it can't render PDFs
+      renderPDFWithPdfJs(); // Use pdf.js fallback
+    }
+  </script>
+</body>
 </html>
