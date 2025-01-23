@@ -84,12 +84,12 @@
     }
     
     // Conditional Rendering
-    if (canRenderPDFNatively()) {
-      iframe.src = pdfUrl; // Use iframe for native rendering
-    } else {
+    // if (canRenderPDFNatively()) {
+    //   iframe.src = pdfUrl; // Use iframe for native rendering
+    // } else {
       iframe.style.display = 'none'; // Hide iframe if it can't render PDFs
       renderPDFWithPdfJs(); // Use pdf.js fallback
-    }
+    // }
   </script>
 </body>
 </html>
