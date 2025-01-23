@@ -49,7 +49,6 @@
     function canRenderPDFNatively() {
       const isAndroid = /Android/i.test(navigator.userAgent);
       if (isAndroid) {
-        document.body.removeChild(testIframe);
         return false; // Assume no rendering on Android
       }
       return true;
