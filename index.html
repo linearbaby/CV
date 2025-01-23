@@ -40,6 +40,7 @@
     const canvas = document.getElementById('pdf-render');
     const context = canvas.getContext('2d');
 
+      
     /**
      * Detect if the browser supports inline PDF rendering.
      * This function attempts to render a small Base64-encoded PDF in an iframe.
@@ -54,6 +55,15 @@
     
         testIframe.src = base64Pdf;
         testIframe.style.display = "none";
+
+        // Extra Android-specific check
+        setTimeout(() => {
+          const isAndroid = /Android/i.test(navigator.userAgent);
+          if (isAndroid) {
+            document.body.removeChild(testIframe);
+            resolve(false); // Assume no rendering on Android
+          }
+        }, 1000); // Wait a bit for Android's download behavior to occur
     
         // Handle iframe load and error events
         testIframe.onload = () => {
@@ -67,15 +77,6 @@
         };
     
         document.body.appendChild(testIframe);
-    
-        // Extra Android-specific check
-        setTimeout(() => {
-          const isAndroid = /Android/i.test(navigator.userAgent);
-          if (isAndroid) {
-            document.body.removeChild(testIframe);
-            resolve(false); // Assume no rendering on Android
-          }
-        }, 1000); // Wait a bit for Android's download behavior to occur
       });
     }
         
