@@ -1,95 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en" style="width:100%; height:100%;">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Viewer</title>
-  <style>
-    iframe {
-      width: 100%;
-      height: 100vh;
-      border: none;
-    }
-    canvas {
-      border: 1px solid black;
-      display: block;
-      margin: 0 auto;
-      width: 100%;
-      height: auto;
-    }
-    #fallback-container {
-      display: none;
-    }
-  </style>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Artyom's CV</title>
 </head>
-<body>
-  <!-- Native PDF Viewer -->
-  <iframe id="pdf-viewer"></iframe>
-
-  <!-- Fallback for Browsers without Native PDF Support -->
-  <div id="fallback-container">
-    <canvas id="pdf-render"></canvas>
-  </div>
-
-  <script type="module">
-    import * as pdfjsLib from './pdf.mjs';
-
-    const pdfUrl = 'https://linearbaby.github.io/CV/CV.pdf'; // Direct URL to the PDF
-    const iframe = document.getElementById('pdf-viewer');
-    const fallbackContainer = document.getElementById('fallback-container');
-    const canvas = document.getElementById('pdf-render');
-    const context = canvas.getContext('2d');
-
-      
-    /**
-     * Detect if the browser supports inline PDF rendering.
-     * This function attempts to render a small Base64-encoded PDF in an iframe.
-     * For Android-specific issues, it explicitly checks for download behavior.
-     */
-    function canRenderPDFNatively() {
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        if (isAndroid) {
-            return false; // Assume no rendering on Android
-        }
-        return true; // PDF successfully rendered
-    }
-
-        
-    // Function to render PDF with pdf.js
-    async function renderPDFWithPdfJs() {
-      fallbackContainer.style.display = 'block'; // Show the fallback container
-      pdfjsLib.GlobalWorkerOptions.workerSrc = './pdf.worker.mjs';
-
-      // Load the PDF using pdf.js
-      const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
-      const page = await pdf.getPage(1);
-
-      const scale = 1; // Adjust scale for better resolution
-      const viewport = page.getViewport({ scale });
-      const devicePixelRatio = window.devicePixelRatio || 1;
-
-      // Set canvas dimensions for high resolution
-      canvas.width = viewport.width * devicePixelRatio;
-      canvas.height = viewport.height * devicePixelRatio;
-
-      // Scale context to match device pixel ratio
-      context.scale(devicePixelRatio, devicePixelRatio);
-
-      // Render the page
-      const renderContext = {
-        canvasContext: context,
-        viewport: viewport,
-      };
-      await page.render(renderContext).promise;
-    }
-    
-    // Conditional Rendering
-    // if (canRenderPDFNatively()) {
-    //   iframe.src = pdfUrl; // Use iframe for native rendering
-    // } else {
-      iframe.style.display = 'none'; // Hide iframe if it can't render PDFs
-      renderPDFWithPdfJs(); // Use pdf.js fallback
-    // }
-  </script>
-</body>
+  <body style="width:100%; height:100%; margin:0;">
+   <iframe
+    src="https://drive.google.com/viewerng/viewer?embedded=true&url=https://github.com/linearbaby/CV/raw/main/CV.pdf#toolbar=0&scrollbar=0"
+    frameBorder="0"
+    scrolling="auto"
+    height="100%"
+    width="100%"
+  ></iframe>
+  </body>
 </html>
