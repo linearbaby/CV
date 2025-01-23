@@ -26,6 +26,8 @@
   <!-- Native PDF Viewer -->
   <iframe id="pdf-viewer"></iframe>
 
+  <p>bebra</p>
+
   <!-- Fallback for Browsers without Native PDF Support -->
   <div id="fallback-container">
     <canvas id="pdf-render"></canvas>
@@ -103,7 +105,7 @@
       };
       await page.render(renderContext).promise;
     }
-
+    
     // Conditional Rendering
     // if (canRenderPDFNatively()) {
     //   iframe.src = pdfUrl; // Use iframe for native rendering
