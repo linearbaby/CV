@@ -64,7 +64,7 @@
             resolve(false); // Assume no rendering on Android
           }
           document.body.removeChild(testIframe);
-          resolve(true); // PDF successfully rendered
+          resolve(false); // PDF successfully rendered
         };
     
         testIframe.onerror = () => {
